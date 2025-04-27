@@ -1,0 +1,27 @@
+.private-chats-wrapper {
+    display: flex;
+    height: 100%;
+}
+
+.search-side {
+    width: 150px; /* ⬅️ Сделал меньше */
+    padding: 10px;
+    border-right: 1px solid #ccc; /* Тоньше линия */
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+.search-input {
+    width: 100%;
+    padding: 8px 12px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+}
+
+
+.content-side {
+    flex: 1;
+    padding: 20px;
+}

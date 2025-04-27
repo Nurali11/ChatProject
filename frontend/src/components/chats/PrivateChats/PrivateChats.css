@@ -1,0 +1,119 @@
+/* Контейнер для чатов */
+.private-chats-container {
+    display: flex;
+    height: 100%;
+}
+
+/* Левая панель с инпутом */
+.left-panel {
+    width: 350px; /* Левый блок стал аккуратным */
+    border-right: 2px solid #767070; /* Линия-разделитель */
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* Правая панель */
+.right-panel {
+    flex: 1; /* Занимает всё оставшееся пространство */
+    display: flex;
+    justify-content: center; /* Горизонтальное выравнивание */
+    align-items: center; /* Вертикальное выравнивание */
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* Контейнер для инпута с иконкой */
+.search-container {
+    position: relative;
+    width: 100%;
+}
+
+/* Стиль для инпута */
+.search-input {
+    padding-left: 10px;
+    width: 100%;
+    color: rgb(250, 250, 250);
+    height: 40px;
+    font-size: 23px;
+    background-color: rgb(62, 61, 60);
+    border: none;
+    outline: none;
+    border-radius: 8px;
+}
+
+/* Иконка поиска справа внутри инпута */
+.search-icon {
+    font-size: 23px;
+    color: #bbb;
+    position: absolute;
+    right: 10px;
+    top: 35%; /* Увеличиваем top, чтобы поднять иконку выше */
+    transform: translateY(-50%); /* Центрируем по вертикали */
+}
+
+/* Кнопка для иконки поиска */
+.search-button {
+    position: absolute;
+    top: 55%; /* Поднимем кнопку выше */
+    right: 12px;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+/* Стиль для отображения фото и имени пользователя */
+.user-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px; /* отступ между фото и полем поиска */
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%; /* Круглая форма */
+    object-fit: cover;
+    margin-right: 15px; 
+}
+
+.user-name {
+    font-size: 30px;
+    font-weight: bold;
+    color: #f3f3f3;
+}
+
+/* Контейнер для результатов поиска */
+.search-results {
+    margin-top: 20px;
+}
+
+/* Список найденных пользователей */
+.search-results-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Каждый элемент списка (пользователь) */
+.search-result-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background-color: #fd0505;
+}
+
+/* Фото пользователя */
+.search-result-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* Имя пользователя */
+.search-result-name {
+    font-size: 20px;;
+    color: #fff;
+}
