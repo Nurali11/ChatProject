@@ -42,11 +42,17 @@ function Login({ closeLoginForm }) {
                 const response = await axios.post('http://localhost:3000/user/login', loginData, {
                     headers: { 'Content-Type': 'application/json' },
                 });
-            
+                
+                if(response.data.error_message){
+                    alert(response.data.error_message)
+                    return
+                }
+
                 console.log('Login response:', response.data);
-            
+                
                 closeLoginForm();
-                alert('Login Successful!');
+                alert(`Login Successful!`);
+                window.location.reload();
 
                 localStorage.setItem('user', JSON.stringify(response.data.user));
 

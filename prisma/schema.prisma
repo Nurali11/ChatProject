@@ -18,7 +18,7 @@ model User {
   name     String
   userName String  @unique
   phone    String  @unique
-  photo    String?  
+  photo    String?
 
   sentChats     Chat[] @relation("FromUser")
   receivedChats Chat[] @relation("ToUser")
@@ -29,6 +29,8 @@ model User {
   group        Group[]        @relation("GroupUsers")
   groupMessage GroupMessage[]
   createdAt    DateTime       @default(now())
+
+  GlobalMessage   Global[] @relation("Global")
 }
 
 model Chat {
@@ -69,5 +71,13 @@ model GroupMessage {
   group     Group    @relation(fields: [groupId], references: [id])
   groupId   String
   text      String
+  createdAt DateTime @default(now())
+}
+
+model Global {
+  id     String @id @default(uuid())
+  from User   @relation("Global", fields: [fromId], references: [id])
+  fromId String
+  text String
   createdAt DateTime @default(now())
 }

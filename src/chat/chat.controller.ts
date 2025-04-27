@@ -12,15 +12,25 @@ export class ChatController {
   create(@Body() createChatDto: CreateChatDto) {
     return this.chatService.createChat(createChatDto);
   }
-
+  
   @Get()
-  findChats(@Query('myId') myId: string){
-    return this.chatService.getChat(myId)
+  findChats(@Query('myId') myId: string, @Query('fromId') fromId: string, @Query("toId") toId: string){
+    return this.chatService.getChat(myId, fromId, toId)
   }
   
   @Post('message')
   createMessage(@Body() data: CreateMessageDto){
     return this.chatService.createMessage(data)
+  }
+
+  @Get('private-messages')
+  getPrivateMessages(@Query('fromId') fromId: string, @Query("toId") toId: string){
+    return this.chatService.getMyMessages(fromId, toId)
+  }
+  
+  @Get('messages')
+  getAllMessages(){
+    return this.chatService.getAllMessages()
   }
 
   @Get('message')

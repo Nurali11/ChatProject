@@ -1,5 +1,5 @@
 // src/user/user.service.ts
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
@@ -39,23 +39,27 @@ async register(createUserDto: CreateUserDto) {
 
 
   async login(loginUserDto: LoginUserDto) {
-    
-    const { userName, phone } = loginUserDto;
-    
-
-    const user = await this.prisma.user.findUnique({
-      where: {
-        userName,
-        phone
+    try {
+      const { userName, phone } = loginUserDto;
+      
+  
+      const user = await this.prisma.user.findUnique({
+        where: {
+          userName,
+          phone
+        }
+      })
+  
+  
+      if (!user) {  
+        return {error_message: "User not found"}
       }
-    })
-
-
-    if (!user) {
-      throw new Error('Invalid username or phone number');
+    
+      return { message: 'Login successful', user};
+    } catch (error) {
+      return {message: error.message}
     }
     
-    return { message: 'Login successful', user};
   }
 
   async findAll(name: string){

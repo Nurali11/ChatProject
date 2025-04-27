@@ -3,6 +3,7 @@ import { CreateChatDto } from './dto/create-chat.dto';
 import { UpdateChatDto } from './dto/update-chat.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateMessageDto } from './dto/create-message.dto';
+import { log } from 'console';
 
 @Injectable()
 export class ChatService {
@@ -10,33 +11,87 @@ export class ChatService {
     private readonly prisma: PrismaService
   ) {}
 
-  async createChat(data: CreateChatDto) {
+  
+  async getAll(){
     try {
-      let chat = await this.prisma.chat.create({data})
-      return chat
+      let chats = await this.prisma.chat.findMany()
+      return chats
     } catch (error) {
-      return error.message
+      return {message: error.message}
     }
   }
 
-  async getChat(myId: string){
-    console.log(myId);
-    
-    let chat = await this.prisma.chat.findMany({
-      where: { 
-        OR: [
-          {fromId: myId},
-          {toId: myId}
-        ]
-      },
+  async createChat(data: CreateChatDto) {
+    try {
+        let existingChat = await this.prisma.chat.findFirst({
+            where: {
+                OR: [
+                    { fromId: data.fromId, toId: data.toId },
+                    { fromId: data.toId, toId: data.fromId }
+                ]
+            }
+        });
+
+        if (existingChat) {
+            return { message: 'Chat already exists' };
+        }
+
+        let chat = await this.prisma.chat.create({ data });
+        return chat;
+    } catch (error) {
+        return error.message;
+    }
+} 
+async getChat(myId?: string, fromId?: string, toId?: string) {
+  
+  let chat = await this.prisma.chat.findMany({
+      where: myId ? {
+                OR: [
+                    { fromId: myId },
+                    { toId: myId }
+                ]
+            }
+          : undefined,
       include: {
-        from: true,
-        to: true
+          from: true,
+          to: true
+      }
+  });
+
+
+  if(fromId && toId){
+    let myChat = await this.prisma.chat.findMany({
+      where: {
+        OR: [
+            { fromId: fromId, toId: toId },
+            { fromId: toId, toId: fromId }
+        ]
+    }
+    })
+    
+    return myChat[0]
+  }
+
+  return chat;
+}
+
+async getMyMessages(fromId:string, toId:string){
+  try {
+    let chatId = (await this.getChat(fromId, toId))?.[0].id
+    let messsages = await this.prisma.message.findMany({
+      where: {
+        chatId: chatId
       }
     })
 
-    return chat
+    return messsages  
+
+  } catch (error) {
+    return {message: error.message
+    }
   }
+}
+
 
   async deleteChat(id: string) {
     try {
@@ -47,6 +102,14 @@ export class ChatService {
     }
   }
 
+  async getAllMessages(){
+    try {
+      let messages = await this.prisma.message.findMany()
+      return messages
+    } catch (error) {
+      return {message: error.message}
+    }
+  }
   async getMessages(chatId: string){
     try {
       let messages = await this.prisma.message.findMany({
@@ -66,6 +129,8 @@ export class ChatService {
       let message = await this.prisma.message.create({
         data
       })
+      console.log(data);
+      
       return message
     } catch (error) {
       return error.message

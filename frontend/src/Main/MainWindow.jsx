@@ -5,7 +5,7 @@ import Login from './Login';
 import Register from './Register';
 import PrivateChats from '../components/chats/PrivateChats/PrivateChats';
 import GroupChats from '../components/chats/GroupChats';
-import GlobalChats from '../components/chats/GlobalChats';
+import GlobalChats from '../components/chats/GlobalChats/GlobalChats';
 import './Main.css';
 
 function Main() {
