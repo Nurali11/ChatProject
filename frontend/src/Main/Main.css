@@ -117,6 +117,16 @@
     z-index: 1000;
 }
 
+.register-form {
+    background-color: #1f1f1f;
+    padding: 30px;
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.content.private-mode
 .register-form, .login-form {
     background-color: #2b2b2b;
     padding: 40px;
@@ -224,7 +234,7 @@
     display: flex; /* Обычное состояние */
 }
 
-/* Когда активирован private chat */
 .content.private-mode {
-    display: block; /* Отменяем flex только для приват чатов */
+    display: block;
+        /* отменяем flex только если private-mode */
 }

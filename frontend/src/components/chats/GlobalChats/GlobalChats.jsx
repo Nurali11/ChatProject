@@ -61,8 +61,8 @@ function GlobalChat() {
             const sendResponse = await axios.post('http://localhost:3000/global', newMessage);
     
             if (sendResponse.status === 200 || 201) {
-                setMessage(""); // Clear the input field
-                fetchMessages(); // Fetch the updated list of messages
+                setMessage("");
+                fetchMessages(); 
             } else {
                 alert('Error sending message');
             }
@@ -77,7 +77,7 @@ function GlobalChat() {
             {userData ? (
                 <>
                     <div className="global-chat-header">
-                        <h2>Global Chat</h2>
+                        <h2>Global Chats</h2>
                     </div>
 
                     <div className="global-chat-messages">
@@ -120,7 +120,7 @@ function GlobalChat() {
                     </div>
                 </>
             ) : (
-                <p>Loading...</p>
+                <p>Global Chats</p>
             )}
         </div>
     );

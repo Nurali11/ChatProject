@@ -83,9 +83,6 @@ function Register({ closeRegisterForm }) {
         }
     };
     
-      
-    
-
     return (
         <div className="register-overlay">
             <div className="register-form">

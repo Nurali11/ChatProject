@@ -4,6 +4,7 @@ import { UpdateChatDto } from './dto/update-chat.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { log } from 'console';
+import { ChatModule } from './chat.module';
 
 @Injectable()
 export class ChatService {
@@ -43,54 +44,64 @@ export class ChatService {
     }
 } 
 async getChat(myId?: string, fromId?: string, toId?: string) {
-  
-  let chat = await this.prisma.chat.findMany({
-      where: myId ? {
-                OR: [
-                    { fromId: myId },
-                    { toId: myId }
-                ]
-            }
-          : undefined,
-      include: {
-          from: true,
-          to: true
-      }
-  });
-
-
-  if(fromId && toId){
-    let myChat = await this.prisma.chat.findMany({
+  if (fromId && toId) {
+    const myChat = await this.prisma.chat.findFirst({
       where: {
         OR: [
-            { fromId: fromId, toId: toId },
-            { fromId: toId, toId: fromId }
+          { fromId: fromId, toId: toId },
+          { fromId: toId, toId: fromId }
         ]
-    }
-    })
-    
-    return myChat[0]
-  }
-
-  return chat;
-}
-
-async getMyMessages(fromId:string, toId:string){
-  try {
-    let chatId = (await this.getChat(fromId, toId))?.[0].id
-    let messsages = await this.prisma.message.findMany({
-      where: {
-        chatId: chatId
+      },
+      include: {
+        from: true,
+        to: true
       }
-    })
+    });
 
-    return messsages  
+    return myChat; // <- Вернёт ОДИН чат
+  }
 
-  } catch (error) {
-    return {message: error.message
+  const chats = await this.prisma.chat.findMany({
+    where: myId ? {
+      OR: [
+        { fromId: myId },
+        { toId: myId }
+      ]
+    } : undefined,
+    include: {
+      from: true,
+      to: true
     }
+  });
+
+  return chats; // <- Вернёт МАССИВ чатов
+}
+
+
+async getMyMessages(fromId: string, toId: string) {
+  try {
+    const chat = await this.getChat(undefined, fromId, toId);
+
+    if (!chat || Array.isArray(chat)) {
+      return { message: "Chat not found" };
+    }
+
+    const messages = await this.prisma.message.findMany({
+      where: {
+        chatId: chat.id
+      },
+      include: {
+        from: true,
+        to: true
+      }
+    });
+
+    return messages;
+  } catch (error) {
+    return { message: error.message };
   }
 }
+
 
 
   async deleteChat(id: string) {

@@ -4,7 +4,7 @@ import { faUser, faUsers, faGlobe } from '@fortawesome/free-solid-svg-icons';
 import Login from './Login';
 import Register from './Register';
 import PrivateChats from '../components/chats/PrivateChats/PrivateChats';
-import GroupChats from '../components/chats/GroupChats';
+import GroupChats from '../components/chats/GroupChats/GroupChats';
 import GlobalChats from '../components/chats/GlobalChats/GlobalChats';
 import './Main.css';
 
@@ -45,7 +45,8 @@ function Main() {
                 </div>
             </nav>
 
-            <div className={`content ${activeChat === 'private' ? 'private-mode' : ''}`}>
+            <div className={`content ${activeChat === 'private' || activeChat === 'group' ? 'private-mode' : ''}`}>
+                
     {activeChat === 'private' && <PrivateChats />}
     {activeChat === 'group' && <GroupChats />}
     {activeChat === 'global' && <GlobalChats />}

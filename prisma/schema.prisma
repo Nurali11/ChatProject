@@ -61,6 +61,7 @@ model Group {
   groupName    String         @unique
   users        User[]         @relation("GroupUsers")
   GroupMessage GroupMessage[]
+  photo String
   createdAt    DateTime       @default(now())
 }
 
