@@ -6,6 +6,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { v4 as uuidv4 } from 'uuid';
+import { group } from 'console';
 
 @Controller('group')
 export class GroupController {
@@ -30,6 +31,11 @@ export class GroupController {
       createGroupDto.photo = `uploads/${photo.filename}`;
     }
     return this.groupService.createGr(createGroupDto);
+  }
+
+  @Get('members')
+  getMembers(@Query('groupId') groupId: string){
+    return this.groupService.groupMembers(groupId)
   }
 
   @Get('search')

@@ -13,7 +13,8 @@
         const [messages, setMessages] = useState([]);
         const [searchQuery, setSearchQuery] = useState('');
         const [errors, setErrors] = useState({});
-
+        const [isSearching, setIsSearching] = useState(false);
+        const [newMessage, setNewMessage] = useState('');
         const [isModalOpen, setIsModalOpen] = useState(false);
         const [createGroupData, setCreateGroupData] = useState({
             groupName: '',
@@ -41,17 +42,22 @@
         const fetchGroups = async () => {
             try {
                 const response = await axios.get(`http://localhost:3000/group?myId=${myId}`);
-                setGroups(response.data);
-                alert(JSON.stringify(response.data))
-                setFilteredGroups(response.data);
+                const groupsWithMembership = response.data.map(group => ({
+                    ...group,
+                    isMember: true, // 💥 потому что это явно мои группы
+                }));
+        
+                setGroups(groupsWithMembership);
+                setFilteredGroups(groupsWithMembership);
             } catch (error) {
                 alert(`Error fetching groups: ${error}`);
             }
         };
+        
 
         const fetchMessages = async (groupId) => {
             try {
-                const response = await axios.get(`http://localhost:3000/groups/message?groupId=${groupId}`);
+                const response = await axios.get(`http://localhost:3000/group/message?groupId=${groupId}`);
                 setMessages(response.data);
             } catch (error) {
                 alert(`Error fetching group messages: ${error}`);
@@ -59,20 +65,43 @@
         };
 
         
-        const handleSearchChange = (event) => {
+        const handleSearchChange = async (event) => {
             const query = event.target.value;
             setSearchQuery(query);
-            
+            setIsSearching(!!query.trim()); // если введён текст — мы в режиме поиска
+        
             if (!query.trim()) {
                 setFilteredGroups(groups);
                 return;
             }
-
-            const filtered = groups.filter(group =>
-                group.name.toLowerCase().includes(query.toLowerCase())
-            );
-            setFilteredGroups(filtered);
+        
+            try {
+                const response = await axios.get(`http://localhost:3000/group/search?name=${encodeURIComponent(query)}`);
+                const foundGroups = response.data;
+        
+                const groupsWithMembership = await Promise.all(
+                    foundGroups.map(async (group) => {
+                        try {
+                            const membersResponse = await axios.get(`http://localhost:3000/group/members?groupId=${group.id}`);
+                            const members = membersResponse.data;
+                            const isMember = members.some(member => member.id === myId);
+                            return { ...group, isMember };
+                        } catch (error) {
+                            console.error(`Error fetching members for group ${group.id}`, error);
+                            return { ...group, isMember: false };
+                        }
+                    })
+                );
+        
+                setFilteredGroups(groupsWithMembership);
+            } catch (error) {
+                console.error('Error searching groups:', error);
+                setFilteredGroups([]);
+            }
         };
+        
+        
+        
 
         const openCreateGroupModal = () => {
             setIsModalOpen(true);
@@ -112,6 +141,36 @@
             });
         };
         
+        const handleJoinGroup = async (groupId) => {
+            try {
+                await axios.post(`http://localhost:3000/group/join`, {
+                    userId: myId,
+                    groupId: groupId
+                });
+                alert('Successfully joined the group!');
+                fetchGroups(); 
+            } catch (error) {
+                alert('Failed to join group');
+            }
+        };
+        
+        const handleSendMessage = async () => {
+            if (!newMessage.trim()) return; // Не отправляем пустые сообщения
+            if (!selectedGroup) return; // Должна быть выбрана группа
+        
+            try {
+                await axios.post(`http://localhost:3000/group/message`, {
+                    fromId: myId,
+                    groupId: selectedGroup.id,
+                    text: newMessage.trim()
+                });
+        
+                setNewMessage(''); // Очистить инпут после отправки
+                fetchMessages(selectedGroup.id); // Обновить сообщения
+            } catch (error) {
+                alert('Error sending message');
+            }
+        };
         
 
         const handleCreateGroupSubmit = async () => {
@@ -190,31 +249,52 @@
                             </div>
 
                             <div className="group-list">
-                                <h3>Your Groups:</h3>
-                                {filteredGroups.length > 0 ? (
-                                    <div className="group-list-items">
-                                        {filteredGroups.map((group, index) => (
-                                            <div
-                                                key={index}
-                                                className="group-item"
-                                                onClick={() => {
-                                                    setSelectedGroup(group);
-                                                    fetchMessages(group.id);
-                                                }}
-                                            >
-                                                <img 
-                                                    src={`http://localhost:3000/${group.photo}`} 
-                                                    alt={`${group.name} avatar`} 
-                                                    className="group-avatar"
-                                                />
-                                                <span className="group-name">{group.name}</span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <p>No groups found.</p>
-                                )}
-                            </div>
+    <h3>{isSearching ? 'Search Results:' : 'Your Groups:'}</h3>
+    {filteredGroups.length > 0 ? (
+        <div className="group-list-items">
+            {filteredGroups.map((group, index) => (
+    <div
+        key={index}
+        className="group-item"
+        onClick={() => {
+            if (group.isMember) {
+                setSelectedGroup(group);
+                fetchMessages(group.id);
+            } else {
+                alert('You must join the group first!');
+            }
+        }}
+    >
+        <img 
+            src={`http://localhost:3000/${group.photo}`} 
+            alt={`${group.name} avatar`} 
+            className="group-avatar"
+        />
+        <span className="group-name">{group.name}</span>
+
+        <button
+            className="join-or-go-button"
+            onClick={(e) => {
+                e.stopPropagation(); // остановить всплытие клика на весь div
+                if (group.isMember) {
+                    setSelectedGroup(group);
+                    fetchMessages(group.id);
+                } else {
+                    handleJoinGroup(group.id); // логика вступления в группу
+                }
+            }}
+        >
+            {group.isMember ? 'Go to Group' : 'Join'}
+        </button>
+    </div>
+))}
+
+        </div>
+    ) : (
+        <p>{isSearching ? 'No groups found.' : 'You have no groups yet.'}</p>
+    )}
+</div>
+
                         </div>
 
                         <div className="right-panel">
@@ -230,26 +310,48 @@
                                     </div>
 
                                     <div className="group-messages">
-                                        {messages.map((msg, index) => (
-                                            <div
-                                                key={index}
-                                                className={`message-item ${msg.fromId === myId ? 'my-message' : 'their-message'}`}
-                                            >
-                                                <div className="message-text">{msg.text}</div>
-                                            </div>
-                                        ))}
-                                    </div>
+    {messages.map((msg, index) => (
+        <div
+            key={index}
+            className={`group-message-item ${msg.fromId === myId ? 'group-my-message' : 'group-their-message'}`}
+        >
+            <div className="group-message-header">
+                {msg.fromId !== myId && (
+                    <img 
+                        src={`http://localhost:3000/${msg.from.photo}`} 
+                        alt="User Avatar"
+                        className="group-message-avatar"
+                    />
+                )}
+                <div className="group-message-user">
+                    {msg.fromId !== myId && <span className="group-message-username">{msg.from.name}</span>}
+                    <span className="group-message-time">{new Date(msg.createdAt).toLocaleString()}</span>
+                </div>
+            </div>
+            <div className="group-message-text">{msg.text}</div>
+        </div>
+    ))}
+</div>
+
 
                                     <div className="group-input">
-                                        <input 
-                                            type="text" 
-                                            placeholder="Type your message..." 
-                                            className="message-input"
-                                        />
-                                        <button className="send-button">
-                                            <FontAwesomeIcon icon={faPaperPlane} className="send-icon" />
-                                        </button>
-                                    </div>
+    <input 
+        type="text" 
+        placeholder="Type your message..." 
+        className="message-input"
+        value={newMessage}
+        onChange={(e) => setNewMessage(e.target.value)}
+        onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+                handleSendMessage();
+            }
+        }}
+    />
+    <button className="send-button" onClick={handleSendMessage}>
+        <FontAwesomeIcon icon={faPaperPlane} className="send-icon" />
+    </button>
+</div>
+
                                 </>
                             ) : (
                                 <p>Select a group to start chatting</p>

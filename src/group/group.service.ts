@@ -31,11 +31,23 @@ export class GroupService {
     }
   }
 
+  async groupMembers(groupId: string){
+      try {
+        let members = await this.prisma.group.findFirst({
+          where: {id: groupId},
+          include: {users: true}})
+
+        return members?.users
+      } catch (error) {
+        return error.message
+      }
+  }
+
   async searchGr(name: string){
     try {
       const filter:any = {}
       if(name){
-        filter.name = {contains: name, mode: "insensetive"}
+        filter.name = {contains: name, mode: "insensitive"}
       }
       let grs = await this.prisma.group.findMany({
         where: filter
@@ -103,7 +115,8 @@ export class GroupService {
       let message = await this.prisma.groupMessage.findMany({
         where: {
           groupId
-        }
+        },
+        include: {from: true}
       });
       return message;
     } catch (error) {

@@ -58,6 +58,7 @@
         border-radius: 15px;
         background-color: #2d2d2d;
         cursor: pointer;
+        margin: 10px 0px -10px 0px;
     }
     
     /* Фото группы */
@@ -104,6 +105,7 @@
     
     /* Стиль для сообщений группы */
     .group-messages {
+        width: 100%;
         flex: 1;
         padding: 10px;
         overflow-y: auto;
@@ -111,7 +113,7 @@
     
     .group-input {
         display: flex;
-        padding: 10px;
+        padding: 5px;
         font-size: 20px;
         width: 95%;
         margin: 15px;
@@ -320,4 +322,94 @@
         color: red;
         font-size: 15px;
         margin-top: 4px;
+}
+
+.join-or-go-button {
+    background-color: #4CAF50;
+    /* зелёная для "Go to Group" */
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    margin-left: auto;
+    /* чтобы кнопка уходила вправо */
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    display: inline-block;
+}
+
+.join-or-go-button:hover {
+    background-color: #45a049;
+    transform: scale(1.05);
+}
+
+.join-or-go-button:active {
+    transform: scale(0.95);
+}
+
+/* Стили для сообщений */
+.group-message-item {
+    display: flex;
+    flex-direction: column;
+    margin: 10px 0;
+    border-radius: 15px;
+    font-size: 25px;
+    padding: 10px;
+}
+
+.group-my-message {
+    align-items: flex-end;
+    background-color: #151163;
+    text-align: right;
+}
+
+/* Сообщение от других пользователей (слева) */
+.group-their-message {
+    background-color: #023236;
+    align-items: flex-start;
+}
+
+/* Аватарка пользователя */
+.group-message-avatar {
+    width: 35px;
+    height: 34px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+/* Заголовок сообщения с именем и временем */
+.group-message-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+/* Имя пользователя */
+.group-message-username {
+    font-size: 20px;
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+/* Время отправки */
+.group-message-time {
+    font-size: 15px;
+    color: #999;
+}
+
+/* Текст сообщения */
+.group-message-text {
+    font-size: 20px;
+    max-width: 80%;
+}
+
+/* Мои сообщения */
+.group-my-message .group-message-text {
+    border-radius: 5px;
+}
+
+/* Сообщения других пользователей */
+.group-their-message .group-message-text {
+    border-radius: 5px;
 }
